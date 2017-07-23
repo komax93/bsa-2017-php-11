@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCarRequest;
+use App\Jobs\SendNotificationEmail;
 use App\Manager\CarManager;
 use App\Manager\UserManager;
 use App\Entity\Car;
@@ -91,6 +92,12 @@ class CarsController extends Controller
         $user = $this->userManager->findById($carRequest->user_id);
         $carRequest = new SaveCarRequest($carRequest->toArray(), $user);
         $this->carManager->saveCar($carRequest);
+
+        $usersList = $this->userManager->findAll();
+        foreach ($usersList as $userItem) {
+            $job = (new SendNotificationEmail($userItem))->onQueue('notification');
+            $this->dispatch($job);
+        }
 
         return redirect()->route('cars.index');
     }
