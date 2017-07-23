@@ -11,6 +11,11 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'IndexController')->name('home');
+
+Route::resource('cars', 'CarsController');
+
+Auth::routes();
+
+Route::get('login/github', 'Auth\GithubLoginController@redirectToProvider')->name('github.login');
+Route::get('login/github/callback', 'Auth\GithubLoginController@handleProviderCallback');
